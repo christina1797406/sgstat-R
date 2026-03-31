@@ -16,7 +16,7 @@ library(janitor)
 ```
 
 
-## Remove metadata from csv (actual data between rows 10-26)
+## 2. Remove metadata from csv (actual data between rows 10-26)
 ### Load CSV file, skipping the first 9 rows of metadata
 ```bash
 data <- read_csv("~/2025/projects/ict-s1-2026/sgstat-R/raw_data/1960-2025.csv",
@@ -25,19 +25,19 @@ n_max = 17,
 col_names = TRUE)
 ```
 
-## Clean column names for easier access
+### Clean column names for easier access
 ```bash
 data <- data %>%
 clean_names() 
 ```
-## Convert all columns except 'data_series' to numeric
+### Convert all columns except 'data_series' to numeric
 ```bash
 data <- data %>%
 mutate(across(-data_series, ~ as.numeric(.)))
 ```
 
 
-## Reshape the data from wide format to long format for easier analysis
+## 3. Reshape the data from wide format to long format for easier analysis
 ```bash
 data_long <- data %>%
 pivot_longer(cols = -data_series, 
@@ -47,18 +47,18 @@ pivot_longer(cols = -data_series,
 mutate(year = as.numeric(str_remove(year, "x"))) # Remove 'x' prefix if any
 ```
 
-## Print summary to check
+### Print summary to check
 ```bash
 glimpse(data_long)
 summary(data_long)
 ```     
 
-## Check in for missing values
+### Check in for missing values
 ```bash
 sum(is.na(data_long$value)) # 128 NA's
 ```
 
-## Filter selection for series
+## 4. Filter selection for series
 ### Total Fertility Rate
 ```bash
 tfr_data <- data_long %>%
@@ -76,7 +76,7 @@ summary(tlb_data)
 head(tlb_data)
 ```
 
-## Split into training and testing subsets
+## 5. Split into training and testing subsets
 ```bash
 train_years <- 1960:2012
 test_years <- 2013:2025
@@ -88,7 +88,7 @@ tlb_train <- tlb_data %>% filter(year %in% train_years)
 tlb_test <- tlb_data %>% filter(year %in% test_years)
 ```
 
-## Save as CSV
+### Save as CSV
 ```bash
 write_csv(tfr_train, "~/2025/projects/ict-s1-2026/sgstat-R/clean_data/tfr_train.csv")
 write_csv(tfr_test,  "~/2025/projects/ict-s1-2026/sgstat-R/clean_data/tfr_test.csv")
@@ -99,7 +99,7 @@ write_csv(tlb_test,  "~/2025/projects/ict-s1-2026/sgstat-R/clean_data/tlb_test.c
 getwd() # Check current working directory
 list.files()
 ```
-## Visualisation
+## 6. Visualisation
 ### Converst to time-series objects
 ```bash
 tfr_ts <- ts(tfr_train$value, start = min(tfr_train$year), end = max(tfr_train$year), frequency = 1)
