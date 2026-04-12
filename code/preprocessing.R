@@ -56,10 +56,10 @@ tlb_train <- tlb_data %>% filter(year %in% train_years)
 tlb_test  <- tlb_data %>% filter(year %in% test_years)
 
 # Save processed data
-write_csv(tfr_train, "data/processed_data/tfr_train.csv")
-write_csv(tfr_test,  "data/processed_data/tfr_test.csv")
+write_csv(tfr_train, "data/clean_data/tfr_train.csv")
+write_csv(tfr_test,  "data/clean_data/tfr_test.csv")
 
-write_csv(tlb_train, "data/processed_data/tlb_train.csv")
-write_csv(tlb_test,  "data/processed_data/tlb_test.csv")
+write_csv(tlb_train, "data/clean_data/tlb_train.csv")
+write_csv(tlb_test,  "data/clean_data/tlb_test.csv")
 
 cat("Preprocessing complete.\n")
