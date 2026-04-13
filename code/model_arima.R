@@ -10,8 +10,8 @@ tlb_train <- read.csv("data/clean_data/tlb_train.csv")
 tlb_test  <- read.csv("data/clean_data/tlb_test.csv")
 
 # Convert to time series
-tfr_ts <- ts(tfr_train$TFR, start=min(tfr_train$Year), frequency=1)
-tlb_ts <- ts(tlb_train$TLB, start=min(tlb_train$Year), frequency=1)
+tfr_ts <- ts(tfr_train$TFR, start=min(tfr_train$year), frequency=1)
+tlb_ts <- ts(tlb_train$TLB, start=min(tlb_train$year), frequency=1)
 
 # TFR ARIMA
 tfr_arima <- auto.arima(tfr_ts)

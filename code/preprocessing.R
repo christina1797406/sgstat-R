@@ -15,7 +15,7 @@ data <- read_csv("data/raw_data/1960-2025.csv",
 
 # Convert columns except 'data_series' to numeric
 data <- data %>%
-  mutate(across(-data_series, as.numeric))
+  mutate(across(-data_series, ~ as.numeric(.)))
 
 # Reshape data from wide to long format
 data_long <- data %>%
@@ -44,6 +44,10 @@ tlb_data <- data_long %>%
   filter(data_series == "Total Live-Births (Number)") %>%
   arrange(year) %>%
   rename(TLB = value)
+
+# Handle NA values
+tfr_data <- tfr_data %>% drop_na(TFR)
+tlb_data <- tlb_data %>% drop_na(TLB)
 
 # Train-test split
 train_years <- 1960:2012

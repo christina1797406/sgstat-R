@@ -1,0 +1,76 @@
+---
+title: "Exploratory Data Analysis"
+output: html_document
+---
+
+```{r setup, include = FALSE}
+library(tidyverse)
+library(forecast)
+
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE
+)
+```
+
+```{r}
+tfr <- read_csv("../data/clean_data/tfr_train.csv")
+tlb <- read_csv("../data/clean_data/tlb_train.csv")
+
+dir.create("../outputs/plots", recursive = TRUE, showWarnings = FALSE)
+
+glimpse(tfr)
+glimpse(tlb)
+```
+
+## Total Fertility Rate
+```{r}
+tfr_plot <- ggplot(tfr, aes(x = year, y = TFR)) +
+  geom_line() +
+  geom_point(size = 1.5, color = "blue") +
+  labs(
+    title = "Total Fertility Rate (1960–2012)",
+    x = "Year",
+    y = "TFR"
+  )
+
+tfr_plot
+ggsave("../outputs/plots/tfr_trend.png", plot = tfr_plot, width = 6, height = 4)
+```
+
+## Total Live Births
+```{r}
+tlb_plot <- ggplot(tlb, aes(x = year, y = TLB)) +
+  geom_line() +
+  geom_point(size = 1.5, color = "blue") +
+  labs(
+    title = "Total Live Births (1960–2012)",
+    x = "Year",
+    y = "Number of Births"
+  )
+
+tlb_plot
+ggsave("../outputs/plots/tlb_trend.png", plot = tlb_plot, width = 6, height = 4)
+```
+
+## Check and print any missing values
+```{r}
+tfr_missing <- sum(is.na(tfr$TFR))
+tlb_missing <- sum(is.na(tlb$TLB))
+
+cat("Missing values in TFR:", tfr_missing, "\n")
+cat("Missing values in TLB:", tlb_missing, "\n")
+```
+
+## Time series conversion (forecasting)
+```{r}
+tfr_ts <- ts(tfr$TFR, start = min(tfr$year), frequency = 1)
+tlb_ts <- ts(tlb$TLB, start = min(tlb$year), frequency = 1)
+```
+
+## Time series plotting
+```{r}
+plot(tfr_ts, main = "TFR Time Series (1960–2012)")
+plot(tlb_ts, main = "TLB Time Series (1960–2012)")
+```
