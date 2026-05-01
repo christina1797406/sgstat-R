@@ -6,6 +6,7 @@ output: html_document
 ```{r setup, include = FALSE}
 library(tidyverse)
 library(forecast)
+library(tseries)
 
 knitr::opts_chunk$set(
   echo = TRUE,
