@@ -1,0 +1,15 @@
+Series,Model_Type,Model,Scale,Features,AIC,Ljung_Box_p_lag10,Ljung_Box_p_lag20,ACF_Spikes,PACF_Spikes,ACF_PACF_OK,Diagnostic_Status,Viable,RMSE,MAE,MAPE,AIC_Note
+TFR,ML,Ridge Regression,original,"year, lag1, lag2, lag3, rolling_mean",NA,NA,NA,NA,NA,N/A,ML comparison model; AIC and ARIMA residual diagnostics not applicable,Comparison only,0.0649,0.0455,4.5293,N/A for ML models
+TFR,ETS,"ETS(A,Ad,N)",original,-,5.1183,0.381,0.0376,2,2,No,Mixed / fails strict white-noise check,No,0.1638,0.1359,13.3138,Comparable only with original-scale time-series models
+TFR,ARIMA,"log-ARIMA(1,1,1)",log,-,-127.7865,0.6459,0.0389,2,3,No,Mixed / fails strict white-noise check,No,0.1818,0.1539,15.0096,Log-scale AIC; do not compare directly with original-scale AIC
+TFR,ML,Random Forest,original,"year, lag1, lag2, lag3, rolling_mean",NA,NA,NA,NA,NA,N/A,ML comparison model; AIC and ARIMA residual diagnostics not applicable,Comparison only,0.182,0.1441,14.2542,N/A for ML models
+TFR,ML,XGBoost,original,"year, lag1, lag2, lag3, rolling_mean",NA,NA,NA,NA,NA,N/A,ML comparison model; AIC and ARIMA residual diagnostics not applicable,Comparison only,0.1872,0.1516,14.9215,N/A for ML models
+TFR,ARIMA,"ARIMA(0,2,1)",original,-,-49.618,0.3123,0.0393,1,2,No,Mixed / fails strict white-noise check,No,0.255,0.2202,21.3683,Comparable only with original-scale time-series models
+TFR,ARIMA,"ARIMA(1,1,1)",original,-,-48.896,0.4518,0.0565,1,3,No,Mixed / fails strict white-noise check,No,0.2638,0.2287,22.1702,Comparable only with original-scale time-series models
+TLB,ML,Random Forest,original,"year, lag1, lag2, lag3, rolling_mean",NA,NA,NA,NA,NA,N/A,ML comparison model; AIC and ARIMA residual diagnostics not applicable,Comparison only,3971.3126,2762.5425,8.084,N/A for ML models
+TLB,ML,Ridge Regression,original,"year, lag1, lag2, lag3, rolling_mean",NA,NA,NA,NA,NA,N/A,ML comparison model; AIC and ARIMA residual diagnostics not applicable,Comparison only,4594.2013,3423.4127,9.9373,N/A for ML models
+TLB,ML,XGBoost,original,"year, lag1, lag2, lag3, rolling_mean",NA,NA,NA,NA,NA,N/A,ML comparison model; AIC and ARIMA residual diagnostics not applicable,Comparison only,4627.575,3380.2091,9.8388,N/A for ML models
+TLB,ARIMA,"log-ARIMA(1,1,1)",log,-,-137.305,0.6747,0.0302,2,2,No,Mixed / fails strict white-noise check,No,5612.2007,4356.4854,12.549,Log-scale AIC; do not compare directly with original-scale AIC
+TLB,ETS,"ETS(A,N,N)",original,-,1055.4766,0.765,0.0362,2,2,No,Mixed / fails strict white-noise check,No,5702.6837,4469.5434,12.8507,Comparable only with original-scale time-series models
+TLB,ARIMA,"ARIMA(0,1,0)",original,-,974.0525,0.7024,0.0197,3,3,No,Mixed / fails strict white-noise check,No,5890.1477,4706.3846,13.4807,Comparable only with original-scale time-series models
+TLB,ARIMA,"ARIMA(1,1,1)",original,-,978.0309,0.7103,0.0208,3,3,No,Mixed / fails strict white-noise check,No,5913.676,4729.328,13.544,Comparable only with original-scale time-series models
