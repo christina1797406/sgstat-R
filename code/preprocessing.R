@@ -62,12 +62,26 @@ train <- full_clean %>%
   filter(year >= 1960, year <= 2012)
 
 test <- full_clean %>%
-  filter(year >= 2013, year <= 2024)
+  filter(year >= 2013, year <= 2025)
 
 dir.create("clean_data", showWarnings = FALSE)
 
 # =========================================================
-# 5. EXPORT CLEAN DATA CSV FILES
+# 5. SPLIT DATA
+# =========================================================
+
+train_tfr <- tfr_data %>%
+  filter(year >= 1960, year <= 2012)
+test_tfr <- tfr_data %>%
+  filter(year >= 2013, year <= 2025)
+
+train_tlb <- tlb_data %>%
+  filter(year >= 1960, year <= 2012)
+test_tlb <- tlb_data %>%
+  filter(year >= 2013, year <= 2025)
+
+# =========================================================
+# 6. EXPORT CLEAN DATA CSV FILES
 # =========================================================
 
 write.csv(full_clean, "clean_data/full_clean.csv", row.names = FALSE)
@@ -75,7 +89,7 @@ write.csv(train, "clean_data/train.csv", row.names = FALSE)
 write.csv(test, "clean_data/test.csv", row.names = FALSE)
 
 # =========================================================
-# 6. EXPORT TFR AND TLB CSV FILES
+# 7. EXPORT TFR AND TLB CSV FILES
 # =========================================================
 
 write.csv(train %>% select(year, TFR), "clean_data/tfr_train.csv", row.names = FALSE)
@@ -85,7 +99,7 @@ write.csv(train %>% select(year, TLB), "clean_data/tlb_train.csv", row.names = F
 write.csv(test %>% select(year, TLB), "clean_data/tlb_test.csv", row.names = FALSE)
 
 # =========================================================
-# 7. PREPROCESSING COMPLETE
+# 8. PREPROCESSING COMPLETE
 # =========================================================
 
 cat("Preprocessing complete.\n")
