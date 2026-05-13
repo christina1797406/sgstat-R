@@ -28,6 +28,12 @@ tfr_m7  <- arima(TFRa, order = c(15,2,0))
 tfr_m8  <- arima(TFRa, order = c(12,2,3))
 tfr_m9  <- arima(TFRa, order = c(11,2,3))
 tfr_m10 <- arima(TFRa, order = c(10,2,3))
+tfr_m11 <- arima(TFRa, order = c(15,1,1))
+tfr_m12 <- arima(TFRa, order = c(14,2,3))
+tfr_m13 <- arima(TFRa, order = c(14,2,2))
+tfr_m14 <- arima(TFRa, order = c(14,2,0))
+tfr_m15 <- arima(TFRa, order = c(15,2,1))
+tfr_m16 <- arima(TFRa, order = c(14,2,4))
 
 # =========================================================
 # 4. COMPARE MODELS USING AIC
@@ -43,7 +49,13 @@ aic_results <- AIC(
   tfr_m7,
   tfr_m8,
   tfr_m9,
-  tfr_m10
+  tfr_m10,
+  tfr_m11,
+  tfr_m12,
+  tfr_m13,
+  tfr_m14,
+  tfr_m15,
+  tfr_m16
 )
 
 # Sort from lowest AIC to highest AIC
@@ -91,7 +103,7 @@ pacf(best_model$resid, lag = 40,
 # Ljung-Box test
 Box.test(
   best_model$resid,
-  lag = 20,
+  lag = 40,
   type = "Ljung-Box",
   fitdf = 15
 )
