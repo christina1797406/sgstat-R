@@ -5,4 +5,5 @@ dir.create("outputs", showWarnings = FALSE)
 
 # Run all R scripts
 source("code/preprocessing.R")
-# source("code/model_arima-2-0-1.R")
+source("code/subset_plotting.R")
+source("code/tfr_arima.R")
