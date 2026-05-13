@@ -123,3 +123,11 @@ pacf(
 )
 
 dev.off()
+
+# =========================================================
+# 9. SAVE TFR ARIMA MODEL
+# =========================================================
+
+dir.create("outputs/models", recursive = TRUE, showWarnings = FALSE)
+
+saveRDS(best_model, "outputs/models/tfr_arima_15_2_0.rds")
