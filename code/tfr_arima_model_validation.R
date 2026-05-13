@@ -76,4 +76,5 @@ rmse_results <- data.frame(
   rmse = c(rmse_m7, rmse_m8, rmse_m15, rmse_m11)
 )
 
-rmse_results[order(rmse_results$rmse), ]
+sorted_rmse <- rmse_results[order(rmse_results$rmse), ]
+print(sorted_rmse)
