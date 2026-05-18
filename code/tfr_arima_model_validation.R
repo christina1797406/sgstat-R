@@ -2,7 +2,7 @@
 # TFR MODEL VALIDATION FOR ARIMA MODELS WITH LOWEST AIC
 # =========================================================
 
-dir.create("../outputs/model_validation", recursive = TRUE, showWarnings = FALSE)
+dir.create("outputs/model_validation", recursive = TRUE, showWarnings = FALSE)
 
 validate_arima <- function(model, model_name, train_ts, test_df) {
   
@@ -72,9 +72,21 @@ rmse_m15 <- validate_arima(tfr_m15, "tfr_m15", TFRa, test)
 rmse_m11 <- validate_arima(tfr_m11, "tfr_m11", TFRa, test)
 
 rmse_results <- data.frame(
-  model = c("tfr_m7", "tfr_m8", "tfr_m15", "tfr_m11"),
+  model = c("ARIMA(15,2,0)", "ARIMA(12,2,3)", "ARIMA(15,2,1)", "ARIMA(15,1,1)"),
+  name = c("tfr_m7", "tfr_m8", "tfr_m15", "tfr_m11"),
   rmse = c(rmse_m7, rmse_m8, rmse_m15, rmse_m11)
 )
 
 sorted_rmse <- rmse_results[order(rmse_results$rmse), ]
 print(sorted_rmse)
+
+
+# Save TFR ARIMA models
+dir.create("outputs/models/raw", recursive = TRUE, showWarnings = FALSE)
+
+saveRDS(tfr_m7, "outputs/models/raw/tfr_m7_ARIMA_15_2_0.rds")
+saveRDS(tfr_m8, "outputs/models/raw/tfr_m8_ARIMA_12_2_3.rds")
+saveRDS(tfr_m15, "outputs/models/raw/tfr_m15_ARIMA_15_2_1.rds")
+saveRDS(tfr_m11, "outputs/models/raw/tfr_m11_ARIMA_15_1_1.rds")
+
+cat("\nARIMA models saved to outputs/models/raw\n")
