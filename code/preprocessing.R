@@ -1,73 +1,105 @@
-# Data Preprocessing Script
-
-required_packages <- c("tidyverse", "lubridate", "forecast", "tseries", "janitor")
-missing_packages <- required_packages[!sapply(required_packages, requireNamespace, quietly = TRUE)]
-if (length(missing_packages) > 0) {
-  install.packages(missing_packages, repos = "https://cloud.r-project.org")
-}
+# =========================================================
+# TIME SERIES DATA CLEANING & PREPARATION
+# =========================================================
 
 # Load libraries
-library(tidyverse) # includes readr, dplyr, tidyr
-library(janitor)
+library(readr)
+library(dplyr)
+library(tidyr)
+library(stringr)
 
-# Load data, clean names
-data <- read_csv("data/raw_data/1960-2025.csv",
-                 skip = 9,
-                 n_max = 17,
-                 col_names = TRUE) %>%
-  clean_names()
+# =========================================================
+# 1. IMPORT DATA
+# =========================================================
 
-# Convert columns except 'data_series' to numeric
-data <- data %>%
-  mutate(across(-data_series, ~ as.numeric(.)))
+raw <- read.csv(
+  "raw_data/1960-2025.csv",
+  skip = 9,
+  stringsAsFactors = FALSE,
+  check.names = TRUE
+)
 
-# Reshape data from wide to long format
-data_long <- data %>%
+# =========================================================
+# 2. CONVERT WIDE FORMAT TO LONG FORMAT
+# =========================================================
+
+clean_long <- raw %>%
+  mutate(across(starts_with("X"), as.character)) %>%
   pivot_longer(
-    cols = -data_series,
+    cols = starts_with("X"),
     names_to = "year",
     values_to = "value"
   ) %>%
-  mutate(year = as.numeric(str_remove(year, "x"))) # Remove 'x' prefix
+  mutate(
+    year = as.numeric(str_remove(year, "X")),
+    value = na_if(value, "na"),
+    value = as.numeric(gsub(",", "", value))
+  )
 
-## Print summary to check
-# glimpse(data_long)
-# summary(data_long)
+# =========================================================
+# 3. FILTER VARIABLES
+# =========================================================
 
-## Check in for missing values
-# sum(is.na(data_long$value)) # 128 NA's
-
-# Total Fertility Rate
-tfr_data <- data_long %>%
-  filter(data_series == "Total Fertility Rate (TFR) (Per Female)") %>%
+tfr_data <- clean_long %>%
+  filter(Data.Series == "Total Fertility Rate (TFR) (Per Female)") %>%
   arrange(year) %>%
-  rename(TFR = value)
+  select(year, TFR = value)
 
-# Total Live Births
-tlb_data <- data_long %>%
-  filter(data_series == "Total Live-Births (Number)") %>%
+tlb_data <- clean_long %>%
+  filter(Data.Series == "Total Live-Births (Number)") %>%
   arrange(year) %>%
-  rename(TLB = value)
+  select(year, TLB = value)
 
-# Handle NA values
-tfr_data <- tfr_data %>% drop_na(TFR)
-tlb_data <- tlb_data %>% drop_na(TLB)
+# =========================================================
+# 4. CLEAN DATA
+# =========================================================
 
-# Train-test split
-train_years <- 1960:2012
-test_years  <- 2013:2025
+full_clean <- tfr_data %>%
+  inner_join(tlb_data, by = "year") %>%
+  filter(year >= 1960, year <= 2025)
 
-tfr_train <- tfr_data %>% filter(year %in% train_years)
-tfr_test  <- tfr_data %>% filter(year %in% test_years)
+train <- full_clean %>%
+  filter(year >= 1960, year <= 2012)
 
-tlb_train <- tlb_data %>% filter(year %in% train_years)
-tlb_test  <- tlb_data %>% filter(year %in% test_years)
+test <- full_clean %>%
+  filter(year >= 2013, year <= 2025)
 
-# Save processed data
-write_csv(tfr_train, "data/clean_data/tfr_train.csv")
-write_csv(tfr_test,  "data/clean_data/tfr_test.csv")
+dir.create("clean_data", showWarnings = FALSE)
 
-write_csv(tlb_train, "data/clean_data/tlb_train.csv")
-write_csv(tlb_test,  "data/clean_data/tlb_test.csv")
+# =========================================================
+# 5. SPLIT DATA
+# =========================================================
+
+train_tfr <- tfr_data %>%
+  filter(year >= 1960, year <= 2012)
+test_tfr <- tfr_data %>%
+  filter(year >= 2013, year <= 2025)
+
+train_tlb <- tlb_data %>%
+  filter(year >= 1960, year <= 2012)
+test_tlb <- tlb_data %>%
+  filter(year >= 2013, year <= 2025)
+
+# =========================================================
+# 6. EXPORT CLEAN DATA CSV FILES
+# =========================================================
+
+write.csv(full_clean, "clean_data/full_clean.csv", row.names = FALSE)
+write.csv(train, "clean_data/train.csv", row.names = FALSE)
+write.csv(test, "clean_data/test.csv", row.names = FALSE)
+
+# =========================================================
+# 7. EXPORT TFR AND TLB CSV FILES
+# =========================================================
+
+write.csv(train %>% select(year, TFR), "clean_data/tfr_train.csv", row.names = FALSE)
+write.csv(test %>% select(year, TFR), "clean_data/tfr_test.csv", row.names = FALSE)
+
+write.csv(train %>% select(year, TLB), "clean_data/tlb_train.csv", row.names = FALSE)
+write.csv(test %>% select(year, TLB), "clean_data/tlb_test.csv", row.names = FALSE)
+
+# =========================================================
+# 8. PREPROCESSING COMPLETE
+# =========================================================
 
 cat("Preprocessing complete.\n")
