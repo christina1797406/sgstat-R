@@ -7,7 +7,7 @@ This document explains where the Total Live Births (TLB) ARIMA code, results and
 **File location:**
 
 ```r
-code/rebuild_data.R
+code/preprocessing.R
 ```
 
 Run this file first:
