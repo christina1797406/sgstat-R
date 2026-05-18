@@ -122,9 +122,9 @@ Before running model testing scripts, always run the preprocessing script first 
 The general workflow is:
 
 ```r
-source("code/rebuild_data.R")
-source("code/tlb_arima_search.R")
-source("code/tlb_arima_model_validation.R")
+source("code/preprocessing.R")
+source("code/your_model_search.R")
+source("code/your_model_validation.R")
 ```
 
 For full modelling details, please read the files in the `documentation/` folder before changing model parameters or adding new candidate models.
