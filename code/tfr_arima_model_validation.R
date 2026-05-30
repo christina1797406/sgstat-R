@@ -18,9 +18,28 @@ validate_arima <- function(model, model_name, train_ts, test_df) {
   # RMSE
   rmse <- sqrt(mean((forecast$actual - forecast$predicted)^2))
   
+  # MAE
+  mae <- mean(abs(forecast$actual - forecast$predicted))
+  
+  # =========================================================
+  # LJUNG-BOX TEST
+  # =========================================================
+  
+  p <- model$arma[1]
+  
+  lb_test <- Box.test(
+    model$resid,
+    lag = 40,
+    type = "Ljung-Box",
+    fitdf = p
+  )
+  
+  lb_pvalue <- lb_test$p.value
+  
   cat("\n============================\n")
   cat("Model:", model_name, "\n")
   cat("RMSE:", rmse, "\n")
+  cat("Ljung-Box p-value:", lb_pvalue, "\n")
   cat("============================\n")
   
   p <- model$arma[1]
@@ -46,7 +65,9 @@ validate_arima <- function(model, model_name, train_ts, test_df) {
     xlab = "Year",
     ylab = "TFR",
     main = main_title,
-    sub = paste("RMSE =", round(rmse, 4))
+    sub = paste("RMSE =", round(rmse, 4),
+                "   |   MAE = ", round(mae, 4)
+                )
   )
   
   lines(test_df$year, forecast$predicted,
@@ -62,23 +83,64 @@ validate_arima <- function(model, model_name, train_ts, test_df) {
   
   dev.off()
   
-  return(rmse)
+  return(list(
+    rmse = rmse,
+    mae = mae,
+    ljung_box = lb_pvalue
+    )
+  )
 }
 
-# Load the best model (tfr_m7) and the next best three models (by AIC)
-rmse_m7 <- validate_arima(tfr_m7, "tfr_m7", TFRa, test)
-rmse_m8 <- validate_arima(tfr_m8, "tfr_m8", TFRa, test)
-rmse_m15 <- validate_arima(tfr_m15, "tfr_m15", TFRa, test)
-rmse_m11 <- validate_arima(tfr_m11, "tfr_m11", TFRa, test)
+# Validate models
+m7 <- validate_arima(tfr_m7, "tfr_m7", TFRa, test)
+m8 <- validate_arima(tfr_m8, "tfr_m8", TFRa, test)
+m15 <- validate_arima(tfr_m15, "tfr_m15", TFRa, test)
+m11 <- validate_arima(tfr_m11, "tfr_m11", TFRa, test)
+m12 <- validate_arima(tfr_m12, "tfr_m12", TFRa, test)
 
-rmse_results <- data.frame(
-  model = c("ARIMA(15,2,0)", "ARIMA(12,2,3)", "ARIMA(15,2,1)", "ARIMA(15,1,1)"),
-  name = c("tfr_m7", "tfr_m8", "tfr_m15", "tfr_m11"),
-  rmse = c(rmse_m7, rmse_m8, rmse_m15, rmse_m11)
+results <- data.frame(
+  model = c(
+    "ARIMA(15,2,0)",
+    "ARIMA(12,2,3)",
+    "ARIMA(15,2,1)",
+    "ARIMA(15,1,1)",
+    "ARIMA(14,2,3)"
+  ),
+  name = c(
+    "tfr_m7",
+    "tfr_m8",
+    "tfr_m15",
+    "tfr_m11",
+    "tfr_m12"
+  ),
+  rmse = c(
+    m7$rmse,
+    m8$rmse,
+    m15$rmse,
+    m11$rmse,
+    m12$rmse
+  ),
+  mae = c(
+    m7$mae,
+    m8$mae,
+    m15$mae,
+    m11$mae,
+    m12$mae
+  ),
+  ljung_box_p = c(
+    m7$ljung_box,
+    m8$ljung_box,
+    m15$ljung_box,
+    m11$ljung_box,
+    m12$ljung_box
+  )
 )
 
-sorted_rmse <- rmse_results[order(rmse_results$rmse), ]
-print(sorted_rmse)
+sorted_results <- results[
+  order(results$rmse),
+]
+
+print(sorted_results)
 
 
 # Save TFR ARIMA models
@@ -88,5 +150,6 @@ saveRDS(tfr_m7, "outputs/models/raw/tfr_m7_ARIMA_15_2_0.rds")
 saveRDS(tfr_m8, "outputs/models/raw/tfr_m8_ARIMA_12_2_3.rds")
 saveRDS(tfr_m15, "outputs/models/raw/tfr_m15_ARIMA_15_2_1.rds")
 saveRDS(tfr_m11, "outputs/models/raw/tfr_m11_ARIMA_15_1_1.rds")
+saveRDS(tfr_m12, "outputs/models/raw/tfr_m12_ARIMA_14_2_3.rds")
 
 cat("\nARIMA models saved to outputs/models/raw\n")
