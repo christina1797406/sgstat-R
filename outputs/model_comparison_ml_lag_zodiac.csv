@@ -1,5 +1,3 @@
 Series,Model_Type,Model,Scale,Features,Removed_Lags,AIC,AIC_Note,MSE,RMSE,MAE,MAPE,Ljung_Box_p_lag12,ACF_Spikes,PACF_Spikes,Training_Residuals_White_Noise
 TFR,ML,Linear regression with backward lag elimination + Zodiac,original,"lag1, lag2, Zodiac","lag6, lag8, lag7, lag10, lag9, lag12, lag3, lag4, lag11, lag5",NA,N/A for ML models,0.064782,0.254524,0.213669,20.693076,0.64848,0,0,Yes
-TFR,ML,Linear regression with backward lag elimination,original,"lag1, lag11, lag12","lag7, lag5, lag9, lag2, lag4, lag6, lag10, lag3, lag8",NA,N/A for ML models,0.085559,0.292505,0.265556,25.418469,0.054124,2,1,No
 TLB,ML,Linear regression with backward lag elimination + Zodiac,original,"lag1, lag4, lag5, lag8, Zodiac","lag6, lag2, lag3, lag7, lag11, lag12, lag9, lag10",NA,N/A for ML models,69295981.925081,8324.420816,6736.050456,19.120957,0.63622,0,0,Yes
-TLB,ML,Linear regression with backward lag elimination,original,"lag1, lag10","lag5, lag9, lag7, lag8, lag3, lag4, lag6, lag11, lag2, lag12",NA,N/A for ML models,91304230.555813,9555.324723,8855.166703,24.466546,0.061821,1,1,No

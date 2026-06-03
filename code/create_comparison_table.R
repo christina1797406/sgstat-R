@@ -3,8 +3,6 @@
 library(tidyverse)
 library(Metrics)
 
-FEATURE_COLUMNS <- c("year", "lag1", "lag2", "lag3", "rolling_mean")
-
 tfr_test <- read_csv("data/clean_data/tfr_test.csv", show_col_types = FALSE) %>%
   select(year, TFR)
 tlb_test <- read_csv("data/clean_data/tlb_test.csv", show_col_types = FALSE) %>%
@@ -121,28 +119,47 @@ make_ts_row <- function(series, model_type, model_label, scale, features, foreca
   )
 }
 
-make_ml_row <- function(series, model_label, forecast_path, actual) {
-  predicted <- read_predictions(forecast_path, preferred_col = "predicted")
+make_ml_rows <- function(path = "outputs/model_comparison_ml.csv") {
+  if (!file.exists(path)) {
+    return(tibble())
+  }
 
-  bind_cols(
-    tibble(
-      Series = series,
-      Model_Type = "ML",
-      Model = model_label,
-      Scale = "original",
-      Features = paste(FEATURE_COLUMNS, collapse = ", "),
+  read_csv(path, show_col_types = FALSE) %>%
+    mutate(
       AIC = NA_real_,
       Ljung_Box_p_lag10 = NA_real_,
       Ljung_Box_p_lag20 = NA_real_,
-      ACF_Spikes = NA_integer_,
-      PACF_Spikes = NA_integer_,
-      ACF_PACF_OK = "N/A",
-      Diagnostic_Status = "ML comparison model; AIC and ARIMA residual diagnostics not applicable",
-      Viable = "Comparison only"
-    ),
-    calc_metrics(actual, predicted),
-    tibble(AIC_Note = "N/A for ML models")
-  )
+      ACF_PACF_OK = if_else(ACF_Spikes == 0 & PACF_Spikes == 0, "Yes", "No"),
+      Diagnostic_Status = if_else(
+        Training_Residuals_White_Noise == "Yes",
+        "Passes ML training residual white-noise check",
+        "Fails ML training residual white-noise check"
+      ),
+      Viable = "Comparison only",
+      AIC_Note = "N/A for ML models"
+    ) %>%
+    select(
+      Series,
+      Model_Type,
+      Model,
+      Scale,
+      Features,
+      Removed_Lags,
+      AIC,
+      Ljung_Box_p_lag10,
+      Ljung_Box_p_lag20,
+      Ljung_Box_p_lag12,
+      ACF_Spikes,
+      PACF_Spikes,
+      ACF_PACF_OK,
+      Diagnostic_Status,
+      Viable,
+      MSE,
+      RMSE,
+      MAE,
+      MAPE,
+      AIC_Note
+    )
 }
 
 tfr_selected_fit <- readRDS("outputs/models/tfr_arima-1-1-1.rds")
@@ -159,20 +176,18 @@ comparison_table <- bind_rows(
   make_ts_row("TFR", "ARIMA", arima_label(tfr_selected_fit), "original", "-", "outputs/forecasts/tfr_arima-1-1-1.csv", "outputs/models/tfr_arima-1-1-1.rds", tfr_test$TFR, "Comparable only with original-scale time-series models"),
   make_ts_row("TFR", "ARIMA", arima_label(tfr_log_fit, "log-ARIMA"), "log", "-", "outputs/forecasts/tfr_log_arima-1-1-1.csv", "outputs/models/tfr_log_arima-1-1-1.rds", tfr_test$TFR, "Log-scale AIC; do not compare directly with original-scale AIC"),
   make_ts_row("TFR", "ETS", tfr_ets_fit$method, "original", "-", "outputs/forecasts/tfr_ets.csv", "outputs/models/tfr_ets.rds", tfr_test$TFR, "Comparable only with original-scale time-series models"),
-  make_ml_row("TFR", "Random Forest", "outputs/forecasts/tfr_random_forest.csv", tfr_test$TFR),
-  make_ml_row("TFR", "XGBoost", "outputs/forecasts/tfr_xgboost.csv", tfr_test$TFR),
-  make_ml_row("TFR", "Ridge Regression", "outputs/forecasts/tfr_ridge.csv", tfr_test$TFR),
   make_ts_row("TLB", "ARIMA", arima_label(tlb_auto_fit), "original", "-", "outputs/forecasts/tlb_arima.csv", "outputs/models/tlb_arima.rds", tlb_test$TLB, "Comparable only with original-scale time-series models"),
   make_ts_row("TLB", "ARIMA", arima_label(tlb_selected_fit), "original", "-", "outputs/forecasts/tlb_arima-1-1-1.csv", "outputs/models/tlb_arima-1-1-1.rds", tlb_test$TLB, "Comparable only with original-scale time-series models"),
   make_ts_row("TLB", "ARIMA", arima_label(tlb_log_fit, "log-ARIMA"), "log", "-", "outputs/forecasts/tlb_log_arima-1-1-1.csv", "outputs/models/tlb_log_arima-1-1-1.rds", tlb_test$TLB, "Log-scale AIC; do not compare directly with original-scale AIC"),
   make_ts_row("TLB", "ETS", tlb_ets_fit$method, "original", "-", "outputs/forecasts/tlb_ets.csv", "outputs/models/tlb_ets.rds", tlb_test$TLB, "Comparable only with original-scale time-series models"),
-  make_ml_row("TLB", "Random Forest", "outputs/forecasts/tlb_random_forest.csv", tlb_test$TLB),
-  make_ml_row("TLB", "XGBoost", "outputs/forecasts/tlb_xgboost.csv", tlb_test$TLB),
-  make_ml_row("TLB", "Ridge Regression", "outputs/forecasts/tlb_ridge.csv", tlb_test$TLB)
+  make_ml_rows()
 ) %>%
   arrange(Series, RMSE) %>%
   mutate(
-    across(c(AIC, Ljung_Box_p_lag10, Ljung_Box_p_lag20, RMSE, MAE, MAPE), ~ round(.x, 4))
+    across(
+      any_of(c("AIC", "Ljung_Box_p_lag10", "Ljung_Box_p_lag20", "Ljung_Box_p_lag12", "MSE", "RMSE", "MAE", "MAPE")),
+      ~ round(.x, 4)
+    )
   )
 
 write_csv(comparison_table, "outputs/model_comparison_full.csv")
