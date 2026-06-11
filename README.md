@@ -1,50 +1,58 @@
-# Singapore Fertility Forecasting Capstone Project
+# Singapore Birth and Fertility Forecasting
 
-This repository contains the data preprocessing, modelling code, and documentation for our ICT Capstone project. The project focuses on analysing and forecasting Singapore fertility trends using time series methods, with a particular focus on Total Fertility Rate (TFR) and Total Live Births (TLB).
+ICT Capstone Project, Group S1-2026-10
 
-The aim of the project is to clean and prepare the Singapore fertility dataset, test suitable forecasting models, evaluate model performance, and document the modelling workflow clearly enough for team members and stakeholders to reproduce the results.
+This repository contains the data cleaning, modelling code, output files, and documentation for the Singapore birth and fertility forecasting project. The project analyses historical Singapore fertility data and compares forecasting approaches for:
 
-## Project Overview
+- **Total Fertility Rate (TFR)**
+- **Total Live Births (TLB)**
 
-The project investigates historical fertility and birth trends in Singapore. The two main variables used in the ARIMA modelling workflow are:
+The main workflow cleans the raw dataset, creates training and testing splits, runs ARIMA and SARIMA models, checks residual diagnostics, compares forecast accuracy, and stores output plots and result tables for the final report.
 
-- **TFR:** Total Fertility Rate, which represents the average number of children expected to be born to a woman over her lifetime.
-- **TLB:** Total Live Births, which represents the yearly number of live births recorded.
+## Team Members
 
-The modelling process includes data cleaning, train and test splitting, stationarity checks, differencing, ARIMA model testing, residual diagnostics, and forecast validation.
+| Name | Student ID |
+|---|---:|
+| Brandon Ho | 1926054 |
+| Christina Nguyen | 1797406 |
+| Lara Grocke | 1802741 |
+| Minh Quant Tran | 1897916 |
+| Xinhai Li | 1881755 |
 
-## Folder Structure
+## Project Summary
 
-```text
-project-root/
-├── code/
-│   ├── preprocessing.R
-│   ├── tlb_arima_search.R
-│   └── tlb_arima_model_validation.R
-├── raw_data/
-│   └── 1960-2025.csv
-├── clean_data/
-│   ├── full_clean.csv
-│   ├── train.csv
-│   ├── test.csv
-│   ├── tfr_train.csv
-│   ├── tfr_test.csv
-│   ├── tlb_train.csv
-│   └── tlb_test.csv
-├── documentation/
-│   └── ARIMA model testing documentation files
-├── outputs/
-│   └── model results, plots, and validation outputs
-├── processed_data/
-│   ├── csv results
-└── README.md
+The project investigates long-term fertility and birth patterns in Singapore using public demographic data from 1960 to 2025. The training period is 1960 to 2012 and the testing period is 2013 to 2025. The testing period is used to compare how well each model forecasts unseen data.
+
+The main modelling approaches in this repository are:
+
+- ARIMA models for TFR and TLB
+- Corrected SARIMA models for TLB with a 12-year seasonal period
+- Zodiac-related exploratory analysis
+- Machine learning comparison models
+- Literature and dataset documentation for report support
+
+## Quick Start
+
+Open the project in RStudio and set the working directory to the project root. The project root should contain folders such as `code`, `raw_data`, `clean_data`, `documentation`, `outputs`, and `processed_data`.
+
+Run the preprocessing script first:
+
+```r
+source("code/preprocessing.R")
 ```
 
-## How to Rebuild and Preprocess the Data
+This rebuilds the cleaned data files in `clean_data/`.
 
-Open the project in RStudio and make sure your working directory is the project root. The root folder should contain folders such as `code`, `raw_data`, `clean_data`, and `documentation`.
 
-Run the preprocessing script from the R Console:
+## Data Cleaning
+
+The main data cleaning file is:
+
+```r
+code/preprocessing.R
+```
+
+Run it with:
 
 ```r
 source("code/preprocessing.R")
@@ -52,30 +60,12 @@ source("code/preprocessing.R")
 
 This script:
 
-- imports the raw Singapore fertility dataset from `raw_data/1960-2025.csv`
-- reshapes the data from wide format into long format
-- extracts the TFR and TLB series
-- cleans missing values and numeric formatting
+- imports the raw dataset from `raw_data/1960-2025.csv`
+- reshapes the dataset from wide format into long format
+- extracts TFR and TLB values
+- cleans numeric formatting
 - creates the training and testing datasets
-- exports cleaned CSV files into the `clean_data/` folder
-
-## Verify the Cleaned Data
-
-After running the preprocessing script, check that the cleaned files were created correctly:
-
-```r
-train <- read.csv("clean_data/train.csv")
-test <- read.csv("clean_data/test.csv")
-
-nrow(train)
-nrow(test)
-
-head(train)
-tail(train)
-
-head(test)
-tail(test)
-```
+- exports cleaned files into `clean_data/`
 
 Expected split:
 
@@ -84,51 +74,152 @@ Training set: 1960 to 2012
 Testing set: 2013 to 2025
 ```
 
-## How to Test the ARIMA Models
-
-The detailed ARIMA modelling workflow is documented in the `documentation/` folder. Refer to the ARIMA model testing documentation for step-by-step instructions on:
-
-- creating time series objects
-- plotting the original TFR and TLB series
-- checking ACF and PACF plots
-- applying first and second differencing
-- fitting ARIMA candidate models
-- comparing AIC values
-- checking residual ACF and PACF plots
-- running Ljung-Box tests
-- validating forecasts with RMSE and MAE
-- selecting the final model
-
-For TLB-specific testing, run:
+To check the cleaned data:
 
 ```r
-source("code/tlb_arima_search.R")
+train <- read.csv("clean_data/train.csv")
+test <- read.csv("clean_data/test.csv")
+
+head(train)
+tail(train)
+head(test)
+tail(test)
 ```
 
-This script tests a range of TLB ARIMA models and outputs model comparison results based on AIC, Ljung-Box p-value, RMSE, and MAE.
+## Main Code Files
 
-Then run:
+### Data Preparation
 
-```r
-source("code/tlb_arima_model_validation.R")
-```
+| File | Purpose |
+|---|---|
+| `code/preprocessing.R` | Rebuilds cleaned TFR and TLB datasets from the raw Singapore fertility data. |
+| `code/subset_plotting.R` | Creates basic TFR and TLB time series plots from the cleaned training data. |
 
-This script validates selected TLB candidate models and generates forecast comparison outputs and residual diagnostic plots.
+### TFR Modelling
 
-## Notes for Team Members
+| File | Purpose |
+|---|---|
+| `code/tfr_arima.R` | Runs ARIMA model exploration for Total Fertility Rate. |
+| `code/tfr_arima_model_validation.R` | Validates selected TFR ARIMA models and produces forecast outputs. |
+| `code/tfr_residual_diagnostics.R` | Produces residual diagnostic plots for selected TFR ARIMA models. |
+| `code/tfr-model-comparison.R` | Compares the best AIC and best RMSE TFR ARIMA models. |
 
-Before running model testing scripts, always run the preprocessing script first so that the latest cleaned data is available.
+### TLB Modelling
 
-The general workflow is:
+| File | Purpose |
+|---|---|
+| `code/tlb_arima_search.R` | Searches non-seasonal TLB ARIMA candidate models. |
+| `code/tlb_arima_model_validation.R` | Validates the strongest TLB ARIMA candidates and creates forecast and residual plots. |
+| `code/tlb_sarima_search.R` | Runs the corrected TLB SARIMA search using seasonal differencing with `D = 1` and period 12. |
+| `code/tlb_sarima_model_validation.R` | Validates the strongest corrected TLB SARIMA models. |
+| `code/tlb_compare_arima_sarima.R` | Compares the strongest TLB ARIMA and SARIMA models in one output table. |
+| `code/tlb_sarima_selected_plots.R` | Generates report-ready plots for selected corrected SARIMA models. |
+
+### Zodiac Analysis
+
+| File | Purpose |
+|---|---|
+| `code/zodiacfinding.R` | Explores ARIMA and SARIMA model groups for Zodiac-related 12-year structure. |
+| `code/zodiacmodels.R` | Tests Zodiac-enhanced model ideas for TFR. |
+| `code/zodiacTLB.R` | Explores Zodiac effects for Total Live Births. |
+| `code/zodiacCBR.R` | Explores Zodiac effects for Crude Birth Rate. |
+| `code/TLBTFRZodiac.R` | Combined TFR, TLB, and Zodiac exploratory script. |
+| `code/ZodiacModelRegressionwithZodiac.R` | Legacy Zodiac regression exploration. |
+| `code/TotalFertlityRate1980.R` | Legacy TFR exploration from 1980 onwards. |
+
+### Machine Learning Comparison
+
+| File | Purpose |
+|---|---|
+| `code/model_ml.R` | Builds comparison models using lag-based inputs and Zodiac information for TFR and TLB. |
+| `code/create_comparison_table.R` | Creates comparison tables from saved model and forecast outputs. |
+
+### Archived Files
+
+| Folder | Purpose |
+|---|---|
+| `code/archive/` | Stores older experimental scripts that are kept for traceability but are not part of the final workflow. |
+
+## Documentation Folder
+
+The `documentation/` folder explains how to run individual code sections and how the modelling workflow was developed.
+
+| File | Purpose |
+|---|---|
+| [`documentation/dataset_cleanup.md`](documentation/dataset_cleanup.md) | Explains the dataset cleaning process. |
+| [`documentation/ARIMA_Model_Finding.md`](documentation/ARIMA_Model_Finding.md) | Explains the ARIMA model identification and testing workflow. |
+| [`documentation/tlb_arima_outputs_guide.md`](documentation/tlb_arima_outputs_guide.md) | Explains Lara's TLB ARIMA and SARIMA files, outputs, and run order. |
+| [`documentation/zodiacfindings_documentation.md`](documentation/zodiacfindings_documentation.md) | Explains the Zodiac analysis and related modelling workflow. |
+
+Read the relevant documentation file before changing model parameters or rerunning a specific section.
+
+## Recommended Run Order
+
+### 1. Rebuild cleaned data
 
 ```r
 source("code/preprocessing.R")
-source("code/your_model_search.R")
-source("code/your_model_validation.R")
 ```
 
-For full modelling details, please read the files in the `documentation/` folder before changing model parameters or adding new candidate models.
+### 2. Run TLB ARIMA and SARIMA models
+
+```r
+source("code/tlb_arima_search.R")
+source("code/tlb_arima_model_validation.R")
+source("code/tlb_sarima_search.R")
+source("code/tlb_sarima_model_validation.R")
+source("code/tlb_compare_arima_sarima.R")
+source("code/tlb_sarima_selected_plots.R")
+```
+
+### 3. Run TFR ARIMA models
+
+```r
+source("code/tfr_arima.R")
+source("code/tfr_arima_model_validation.R")
+source("code/tfr_residual_diagnostics.R")
+source("code/tfr-model-comparison.R")
+```
+
+### 4. Run Zodiac analysis
+
+```r
+source("code/zodiacfinding.R")
+source("code/zodiacmodels.R")
+source("code/zodiacTLB.R")
+source("code/zodiacCBR.R")
+```
+
+### 5. Run machine learning comparison models
+
+```r
+source("code/model_ml.R")
+```
+
+## Important Outputs
+
+| Folder or file | Contents |
+|---|---|
+| `clean_data/` | Cleaned training and testing CSV files. |
+| `processed_data/` | Model comparison CSV files and validation summaries. |
+| `outputs/ts_plots/` | Time series and differencing plots. |
+| `outputs/model_validation/tlb/` | TLB ARIMA forecast and residual plots. |
+| `outputs/model_validation/tlb_sarima/` | Corrected TLB SARIMA forecast and residual plots. |
+| `outputs/model_validation/tlb_sarima_selected/` | Report-ready plots for selected corrected SARIMA models. |
+| `outputs/forecasts/` | Forecast CSV files for tested models. |
+| `outputs/model_comparison/` | Model comparison plots and summary files. |
+| `outputs/models/` | Saved fitted model objects. |
+
+
+## Notes for Team Members
+
+- Always run `code/preprocessing.R` before running model scripts.
+- Do not manually edit files in `clean_data/`, because they are regenerated by preprocessing.
+- Use `processed_data/` for CSV summaries used in the report.
+- Use `outputs/model_validation/` for forecast and residual diagnostic plots.
+- Keep older exploratory scripts in `code/archive/` unless they are needed for final reproduction.
+- Add new documentation into `documentation/` when adding a new model workflow.
 
 ## Project Status
 
-This project is currently being developed as part of the ICT Capstone prototype and final delivery process. Current work focuses on refining the ARIMA modelling workflow, validating forecasts, comparing candidate models, and preparing clear documentation for the final report and prototype demonstration.
+This repository supports the final ICT Capstone report and handover. The main final workflow is focused on cleaned data generation, ARIMA and SARIMA model validation, Zodiac-related seasonal analysis, machine learning comparison, and report-ready output files.

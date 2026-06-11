@@ -25,7 +25,7 @@ This guide is designed so that commands can be copied directly into the R Consol
 Run the preprocessing script:
 
 ```
-source("code/rebuild_data.R")
+source("code/preprocessing.R")
 ```
 
 This will:
